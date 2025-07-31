@@ -1,0 +1,34 @@
+{
+  "fever": {
+    "conditions": ["Influenza", "COVID-19", "Common Cold"],
+    "departments": ["Internal Medicine", "Infectious Diseases"]
+  },
+  "headache": {
+    "conditions": ["Migraine", "Tension Headache", "Cluster Headache"],
+    "departments": ["Neurology"]
+  },
+  "cough": {
+    "conditions": ["Bronchitis", "Pneumonia", "Common Cold"],
+    "departments": ["Pulmonology", "Internal Medicine"]
+  },
+  "chest pain": {
+    "conditions": ["Angina", "Heart Attack", "Gastroesophageal Reflux"],
+    "departments": ["Cardiology", "Gastroenterology"]
+  },
+  "stomach ache": {
+    "conditions": ["Gastritis", "Appendicitis", "Irritable Bowel Syndrome"],
+    "departments": ["Gastroenterology"]
+  },
+  "rash": {
+    "conditions": ["Allergic Dermatitis", "Eczema", "Psoriasis"],
+    "departments": ["Dermatology"]
+  },
+  "dizziness": {
+    "conditions": ["Vertigo", "Low Blood Pressure", "Dehydration"],
+    "departments": ["Neurology", "Internal Medicine"]
+  },
+  "fatigue": {
+    "conditions": ["Anemia", "Hypothyroidism", "Chronic Fatigue Syndrome"],
+    "departments": ["Endocrinology", "Internal Medicine"]
+  }
+}
