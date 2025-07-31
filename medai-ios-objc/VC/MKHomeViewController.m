@@ -7,6 +7,8 @@
 
 #import "MKHomeViewController.h"
 #import "SymptomAnalyzer.h"
+#import "HistoryManager.h"
+#import "MKHistoryViewController.h"
 
 @interface MKHomeViewController ()
 
@@ -60,6 +62,15 @@
         [self.resultTextView.trailingAnchor constraintEqualToAnchor:self.view.trailingAnchor constant:-20],
         [self.resultTextView.bottomAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.bottomAnchor constant:-20],
     ]];
+    
+    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"History" style:UIBarButtonItemStylePlain target:self action:@selector(showHistory)];
+
+}
+
+//show his
+- (void)showHistory {
+    MKHistoryViewController *historyVC = [[MKHistoryViewController alloc] init];
+    [self.navigationController pushViewController:historyVC animated:YES];
 }
 
 - (void)handleAnalyzeButtonTapped {
@@ -76,6 +87,9 @@
         NSDictionary *result = [SymptomAnalyzer analyzeSymptomsFromText:inputText];
         [self displayResult:result];
     });
+    
+    //
+    [HistoryManager saveQuery:inputText];
 }
 
 - (void)displayResult:(NSDictionary *)result {
