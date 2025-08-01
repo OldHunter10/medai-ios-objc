@@ -35,6 +35,13 @@
                                               action:@selector(clearHistoryTapped)];
 }
 
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    
+    self.historyItems = [HistoryManager loadHistory];
+    [self.tableView reloadData];
+}
+
 - (void)clearHistoryTapped {
     UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Clear History"
                                                                    message:@"Are you sure you want to delete all history?"
