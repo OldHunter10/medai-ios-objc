@@ -87,7 +87,7 @@
 }
 
 - (void)handleAnalyzeButtonTapped {
-    NSString *inputText = self.symptomInputField.text;
+    NSString *inputText = [self.symptomInputField.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
     
     if (inputText.length == 0) {
         self.resultTextView.text = @"Please enter at least one symptom.";
