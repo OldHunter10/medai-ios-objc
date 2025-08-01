@@ -15,6 +15,7 @@
 @property (nonatomic, strong) UITextField *symptomInputField;
 @property (nonatomic, strong) UIButton *analyzeButton;
 @property (nonatomic, strong) UITextView *resultTextView;
+@property (nonatomic, strong) UIActivityIndicatorView *loadingView; // for loading spinner
 
 @end
 
@@ -63,6 +64,18 @@
         [self.resultTextView.bottomAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.bottomAnchor constant:-20],
     ]];
     
+    self.loadingView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleMedium];
+    self.loadingView.translatesAutoresizingMaskIntoConstraints = NO;
+//    self.loadingView.color = [UIColor redColor]; // weird in dark mode
+    [self.view addSubview:self.loadingView];
+    
+    [NSLayoutConstraint activateConstraints:@[
+        [self.resultTextView.bottomAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.bottomAnchor constant:-20],
+        
+        [self.loadingView.centerXAnchor constraintEqualToAnchor:self.view.centerXAnchor],
+        [self.loadingView.topAnchor constraintEqualToAnchor:self.analyzeButton.bottomAnchor constant:8]
+    ]];
+    
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"History" style:UIBarButtonItemStylePlain target:self action:@selector(showHistory)];
 
 }
@@ -82,9 +95,13 @@
     }
 
     self.resultTextView.text = @"Analysing...";
+    [self.loadingView startAnimating];
+
 
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         NSDictionary *result = [SymptomAnalyzer analyzeSymptomsFromText:inputText];
+        [self.loadingView stopAnimating];
+        
         [self displayResult:result];
     });
     
