@@ -49,6 +49,12 @@
     self.resultTextView.translatesAutoresizingMaskIntoConstraints = NO;
     [self.view addSubview:self.resultTextView];
     
+    UIButton *pasteButton = [UIButton buttonWithType:UIButtonTypeSystem];
+    [pasteButton setTitle:@"Paste" forState:UIControlStateNormal];
+    pasteButton.translatesAutoresizingMaskIntoConstraints = NO;
+    [pasteButton addTarget:self action:@selector(handlePasteTapped) forControlEvents:UIControlEventTouchUpInside];
+    [self.view addSubview:pasteButton];
+    
     [NSLayoutConstraint activateConstraints:@[
         [self.symptomInputField.topAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.topAnchor constant:20],
         [self.symptomInputField.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor constant:20],
@@ -62,6 +68,9 @@
         [self.resultTextView.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor constant:20],
         [self.resultTextView.trailingAnchor constraintEqualToAnchor:self.view.trailingAnchor constant:-20],
         [self.resultTextView.bottomAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.bottomAnchor constant:-20],
+        
+        [pasteButton.trailingAnchor constraintEqualToAnchor:self.view.trailingAnchor constant:-20],
+        [pasteButton.centerYAnchor constraintEqualToAnchor:self.symptomInputField.centerYAnchor]
     ]];
     
     self.loadingView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleMedium];
@@ -78,6 +87,17 @@
     
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"History" style:UIBarButtonItemStylePlain target:self action:@selector(showHistory)];
 
+}
+
+- (void)handlePasteTapped {
+    UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
+    NSString *copied = pasteboard.string ?: @"";
+    
+    if (copied.length > 0) {
+        self.symptomInputField.text = copied;
+    } else {
+        // NSLog(@"Pasteboard is empty"); // user might be confused
+    }
 }
 
 //show his
