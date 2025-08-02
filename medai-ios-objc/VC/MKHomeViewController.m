@@ -161,6 +161,10 @@
     }
 
     self.resultTextView.text = output;
+        
+    // scroll back to top after updating result
+    [self.resultTextView setContentOffset:CGPointZero animated:YES];
+    //    [self.resultTextView scrollRangeToVisible:NSMakeRange(0, 0)]; // looked jumpy
 }
 
 @end
