@@ -28,6 +28,14 @@
     self.view.backgroundColor = [UIColor whiteColor];
     
     [self setupUI];
+    
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(dismissKeyboard)];
+    [self.view addGestureRecognizer:tap];
+}
+
+- (void)dismissKeyboard {
+    [self.view endEditing:YES];
+    // NSLog(@"dismissed keyboard"); // worked better than resignFirstResponder
 }
 
 - (void)setupUI {
