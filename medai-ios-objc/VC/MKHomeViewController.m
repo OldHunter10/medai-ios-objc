@@ -16,6 +16,7 @@
 @property (nonatomic, strong) UIButton *analyzeButton;
 @property (nonatomic, strong) UITextView *resultTextView;
 @property (nonatomic, strong) UIActivityIndicatorView *loadingView; // for loading spinner
+@property (nonatomic, strong) UIButton *cpResultButton;
 
 @end
 
@@ -57,6 +58,17 @@
     self.resultTextView.translatesAutoresizingMaskIntoConstraints = NO;
     [self.view addSubview:self.resultTextView];
     
+    self.cpResultButton = [UIButton buttonWithType:UIButtonTypeSystem];
+    [self.cpResultButton setTitle:@"Copy Result" forState:UIControlStateNormal];
+    self.cpResultButton.translatesAutoresizingMaskIntoConstraints = NO;
+    [self.cpResultButton addTarget:self action:@selector(handleCopyTapped) forControlEvents:UIControlEventTouchUpInside];
+    [self.view addSubview:self.cpResultButton];
+    
+    [NSLayoutConstraint activateConstraints:@[
+        [self.cpResultButton.topAnchor constraintEqualToAnchor:self.resultTextView.bottomAnchor constant:8],
+        [self.cpResultButton.centerXAnchor constraintEqualToAnchor:self.view.centerXAnchor]
+    ]];
+    
     UIButton *pasteButton = [UIButton buttonWithType:UIButtonTypeSystem];
     [pasteButton setTitle:@"Paste" forState:UIControlStateNormal];
     pasteButton.translatesAutoresizingMaskIntoConstraints = NO;
@@ -95,6 +107,23 @@
     
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"History" style:UIBarButtonItemStylePlain target:self action:@selector(showHistory)];
 
+}
+
+- (void)handleCopyTapped {
+    NSString *text = self.resultTextView.text ?: @"";
+    if (text.length == 0) return;
+    
+    [UIPasteboard generalPasteboard].string = text;
+    
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:nil
+                                                                   message:@"Copied to clipboard"
+                                                            preferredStyle:UIAlertControllerStyleAlert];
+    
+    [self presentViewController:alert animated:YES completion:^{
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            [alert dismissViewControllerAnimated:YES completion:nil];
+        });
+    }];
 }
 
 - (void)handlePasteTapped {
