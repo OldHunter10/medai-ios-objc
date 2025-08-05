@@ -13,4 +13,6 @@
 
 #define kSelectedModelKey @"selected_model"
 
+#define DEBUG_LOG_ENABLED YES
+
 #endif /* Constants_h */
