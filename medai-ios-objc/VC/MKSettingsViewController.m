@@ -8,6 +8,8 @@
 #import "MKSettingsViewController.h"
 #import "HistoryManager.h"
 
+static NSString * const kSelectedModelKey = @"selected_model";
+
 @interface MKSettingsViewController ()
 
 @property (nonatomic, strong) NSArray<NSArray<NSString *> *> *settings;
@@ -18,12 +20,14 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    
     self.title = @"Settings";
+    
     self.tableView = [[UITableView alloc] initWithFrame:CGRectZero style:UITableViewStyleInsetGrouped];
     
     self.settings = @[
         @[@"Clear History"],
-        @[@"Language (English / 中文)", @"AI Model (Simple)"],
+        @[@"Language (English / 中文)", @"AI Model"],
         @[@"App Version"]
     ];
 }
@@ -44,22 +48,27 @@
     }
     
     cell.textLabel.text = self.settings[indexPath.section][indexPath.row];
-    
-    // Fake model / language selection highlight
+    cell.selectionStyle = UITableViewCellSelectionStyleNone;
+
     if (indexPath.section == 1 && indexPath.row == 1) {
-        cell.detailTextLabel.text = @"Simple";
+        NSString *selectedModel = [[NSUserDefaults standardUserDefaults] stringForKey:kSelectedModelKey] ?: @"Simple";
+        cell.detailTextLabel.text = selectedModel;
+        cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+        cell.selectionStyle = UITableViewCellSelectionStyleDefault;
     }
+
     if (indexPath.section == 2 && indexPath.row == 0) {
         cell.detailTextLabel.text = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"];
     }
 
-    cell.selectionStyle = UITableViewCellSelectionStyleNone;
     return cell;
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     if (indexPath.section == 0 && indexPath.row == 0) {
         [self confirmClearHistory];
+    } else if (indexPath.section == 1 && indexPath.row == 1) {
+        [self presentModelSelector];
     }
 }
 
@@ -73,6 +82,33 @@
     UIAlertAction *cancel = [UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil];
     [alert addAction:yes];
     [alert addAction:cancel];
+    [self presentViewController:alert animated:YES completion:nil];
+}
+
+- (void)presentModelSelector {
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Select AI Model"
+                                                                   message:nil
+                                                            preferredStyle:UIAlertControllerStyleActionSheet];
+    
+    NSArray *models = @[@"Simple", @"Advanced"];
+    
+    for (NSString *model in models) {
+        UIAlertAction *action = [UIAlertAction actionWithTitle:model
+                                                         style:UIAlertActionStyleDefault
+                                                       handler:^(UIAlertAction * _Nonnull action) {
+            [[NSUserDefaults standardUserDefaults] setObject:model forKey:kSelectedModelKey];
+            [[NSUserDefaults standardUserDefaults] synchronize];
+            [self.tableView reloadData];
+        }];
+        [alert addAction:action];
+    }
+
+    UIAlertAction *cancel = [UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil];
+    [alert addAction:cancel];
+    
+    alert.popoverPresentationController.sourceView = self.view;
+    alert.popoverPresentationController.sourceRect = self.view.bounds;
+
     [self presentViewController:alert animated:YES completion:nil];
 }
 

@@ -11,4 +11,6 @@
 #define HISTORY_KEY @"user_query_history"
 #define MAX_HISTORY_COUNT 20
 
+#define kSelectedModelKey @"selected_model"
+
 #endif /* Constants_h */
