@@ -57,7 +57,6 @@
     NSString *selected = self.items[indexPath.row];
     NSLog(@"Selected: %@", selected);
     
-    // You could push another VC here or trigger analysis again
 }
 
 @end
