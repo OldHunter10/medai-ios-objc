@@ -26,8 +26,6 @@
     
     [self.tableView registerClass:[UITableViewCell class] forCellReuseIdentifier:@"HistoryCell"];
     
-//    self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
-    
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc]
                                               initWithTitle:@"Clear"
                                               style:UIBarButtonItemStylePlain
@@ -52,7 +50,6 @@
         [HistoryManager clearHistory];
         self.historyItems = @[];
         [self.tableView reloadData];
-//        NSLog(@"History wiped"); //
     }];
     
     [alert addAction:cancel];
@@ -81,9 +78,14 @@
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
     
     NSString *selected = self.historyItems[indexPath.row];
-    NSLog(@"Selected history: %@", selected);
     
-    // TODO: optionally auto-analyse again
+    // Send notification with selected text
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"MKDidSelectHistoryText"
+                                                        object:nil
+                                                      userInfo:@{@"text": selected}];
+    
+    // Optional: pop to root (home) view controller
+    [self.navigationController popToRootViewControllerAnimated:YES];
 }
 
 @end
