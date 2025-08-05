@@ -9,6 +9,7 @@
 #import "HistoryManager.h"
 
 static NSString * const kSelectedModelKey = @"selected_model";
+static NSString * const kSelectedLanguageKey = @"selected_language";
 
 @interface MKSettingsViewController ()
 
@@ -27,7 +28,7 @@ static NSString * const kSelectedModelKey = @"selected_model";
     
     self.settings = @[
         @[@"Clear History"],
-        @[@"Language (English / 中文)", @"AI Model"],
+        @[@"Language", @"AI Model"],
         @[@"App Version"]
     ];
 }
@@ -50,11 +51,18 @@ static NSString * const kSelectedModelKey = @"selected_model";
     cell.textLabel.text = self.settings[indexPath.section][indexPath.row];
     cell.selectionStyle = UITableViewCellSelectionStyleNone;
 
-    if (indexPath.section == 1 && indexPath.row == 1) {
-        NSString *selectedModel = [[NSUserDefaults standardUserDefaults] stringForKey:kSelectedModelKey] ?: @"Simple";
-        cell.detailTextLabel.text = selectedModel;
+    if (indexPath.section == 1) {
         cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
         cell.selectionStyle = UITableViewCellSelectionStyleDefault;
+
+        if (indexPath.row == 0) {
+            NSString *lang = [[NSUserDefaults standardUserDefaults] stringForKey:kSelectedLanguageKey] ?: @"English";
+            cell.detailTextLabel.text = lang;
+        }
+        if (indexPath.row == 1) {
+            NSString *selectedModel = [[NSUserDefaults standardUserDefaults] stringForKey:kSelectedModelKey] ?: @"Simple";
+            cell.detailTextLabel.text = selectedModel;
+        }
     }
 
     if (indexPath.section == 2 && indexPath.row == 0) {
@@ -67,8 +75,12 @@ static NSString * const kSelectedModelKey = @"selected_model";
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     if (indexPath.section == 0 && indexPath.row == 0) {
         [self confirmClearHistory];
-    } else if (indexPath.section == 1 && indexPath.row == 1) {
-        [self presentModelSelector];
+    } else if (indexPath.section == 1) {
+        if (indexPath.row == 0) {
+            [self presentLanguageSelector];
+        } else if (indexPath.row == 1) {
+            [self presentModelSelector];
+        }
     }
 }
 
@@ -103,6 +115,33 @@ static NSString * const kSelectedModelKey = @"selected_model";
         [alert addAction:action];
     }
 
+    UIAlertAction *cancel = [UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil];
+    [alert addAction:cancel];
+    
+    alert.popoverPresentationController.sourceView = self.view;
+    alert.popoverPresentationController.sourceRect = self.view.bounds;
+
+    [self presentViewController:alert animated:YES completion:nil];
+}
+
+- (void)presentLanguageSelector {
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Select Language"
+                                                                   message:nil
+                                                            preferredStyle:UIAlertControllerStyleActionSheet];
+    
+    NSArray *languages = @[@"English", @"中文"];
+    
+    for (NSString *lang in languages) {
+        UIAlertAction *action = [UIAlertAction actionWithTitle:lang
+                                                         style:UIAlertActionStyleDefault
+                                                       handler:^(UIAlertAction * _Nonnull action) {
+            [[NSUserDefaults standardUserDefaults] setObject:lang forKey:kSelectedLanguageKey];
+            [[NSUserDefaults standardUserDefaults] synchronize];
+            [self.tableView reloadData];
+        }];
+        [alert addAction:action];
+    }
+    
     UIAlertAction *cancel = [UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil];
     [alert addAction:cancel];
     
