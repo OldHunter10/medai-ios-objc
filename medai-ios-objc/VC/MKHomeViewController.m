@@ -105,8 +105,32 @@
         [self.loadingView.topAnchor constraintEqualToAnchor:self.analyzeButton.bottomAnchor constant:8]
     ]];
     
+    UIButton *shareButton = [UIButton buttonWithType:UIButtonTypeSystem];
+    [shareButton setTitle:@"Share" forState:UIControlStateNormal];
+    shareButton.translatesAutoresizingMaskIntoConstraints = NO;
+    [shareButton addTarget:self action:@selector(handleShareTapped) forControlEvents:UIControlEventTouchUpInside];
+    [self.view addSubview:shareButton];
+    
+    [NSLayoutConstraint activateConstraints:@[
+        [shareButton.topAnchor constraintEqualToAnchor:self.cpResultButton.bottomAnchor constant:12],
+        [shareButton.centerXAnchor constraintEqualToAnchor:self.view.centerXAnchor]
+    ]];
+    
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"History" style:UIBarButtonItemStylePlain target:self action:@selector(showHistory)];
 
+}
+
+- (void)handleShareTapped {
+    NSString *text = self.resultTextView.text ?: @"";
+    if (text.length == 0) return;
+    
+    UIActivityViewController *activityVC = [[UIActivityViewController alloc] initWithActivityItems:@[text] applicationActivities:nil];
+    
+    // iPad 兼容
+    activityVC.popoverPresentationController.sourceView = self.view;
+    activityVC.popoverPresentationController.sourceRect = self.view.bounds;
+    
+    [self presentViewController:activityVC animated:YES completion:nil];
 }
 
 - (void)handleCopyTapped {
