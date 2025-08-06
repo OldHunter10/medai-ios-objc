@@ -41,10 +41,16 @@
     authorLabel.textColor = [UIColor darkGrayColor];
     authorLabel.translatesAutoresizingMaskIntoConstraints = NO;
     
+    UIButton *githubButton = [UIButton buttonWithType:UIButtonTypeSystem];
+    [githubButton setTitle:@"View on GitHub" forState:UIControlStateNormal];
+    [githubButton addTarget:self action:@selector(openGitHub) forControlEvents:UIControlEventTouchUpInside];
+    githubButton.translatesAutoresizingMaskIntoConstraints = NO;
+    
     [self.view addSubview:titleLabel];
     [self.view addSubview:versionLabel];
     [self.view addSubview:descLabel];
     [self.view addSubview:authorLabel];
+    [self.view addSubview:githubButton];
     
     [NSLayoutConstraint activateConstraints:@[
         [titleLabel.centerXAnchor constraintEqualToAnchor:self.view.centerXAnchor],
@@ -59,7 +65,17 @@
         
         [authorLabel.centerXAnchor constraintEqualToAnchor:self.view.centerXAnchor],
         [authorLabel.topAnchor constraintEqualToAnchor:descLabel.bottomAnchor constant:30],
+        
+        [githubButton.centerXAnchor constraintEqualToAnchor:self.view.centerXAnchor],
+        [githubButton.topAnchor constraintEqualToAnchor:authorLabel.bottomAnchor constant:20]
     ]];
+}
+
+- (void)openGitHub {
+    NSURL *url = [NSURL URLWithString:@"https://github.com/oldhunter10/medai-ios-objc"];
+    if ([[UIApplication sharedApplication] canOpenURL:url]) {
+        [[UIApplication sharedApplication] openURL:url options:@{} completionHandler:nil];
+    }
 }
 
 @end
