@@ -29,7 +29,7 @@ static NSString * const kSelectedLanguageKey = @"selected_language";
     self.settings = @[
         @[@"Clear History"],
         @[@"Language", @"AI Model"],
-        @[@"App Version"]
+        @[@"App Version", @"About"]
     ];
 }
 
@@ -47,10 +47,12 @@ static NSString * const kSelectedLanguageKey = @"selected_language";
     if (!cell) {
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:cellId];
     }
-    
-    cell.textLabel.text = self.settings[indexPath.section][indexPath.row];
-    cell.selectionStyle = UITableViewCellSelectionStyleNone;
 
+    cell.textLabel.text = self.settings[indexPath.section][indexPath.row];
+    cell.detailTextLabel.text = @""; // 清空旧值，防止复用问题
+    cell.accessoryType = UITableViewCellAccessoryNone;
+    cell.selectionStyle = UITableViewCellSelectionStyleNone;
+    
     if (indexPath.section == 1) {
         cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
         cell.selectionStyle = UITableViewCellSelectionStyleDefault;
@@ -58,15 +60,24 @@ static NSString * const kSelectedLanguageKey = @"selected_language";
         if (indexPath.row == 0) {
             NSString *lang = [[NSUserDefaults standardUserDefaults] stringForKey:kSelectedLanguageKey] ?: @"English";
             cell.detailTextLabel.text = lang;
-        }
-        if (indexPath.row == 1) {
+        } else if (indexPath.row == 1) {
             NSString *selectedModel = [[NSUserDefaults standardUserDefaults] stringForKey:kSelectedModelKey] ?: @"Simple";
             cell.detailTextLabel.text = selectedModel;
         }
     }
 
-    if (indexPath.section == 2 && indexPath.row == 0) {
-        cell.detailTextLabel.text = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"];
+    if (indexPath.section == 2) {
+        cell.selectionStyle = UITableViewCellSelectionStyleDefault;
+        cell.accessoryType = UITableViewCellAccessoryNone;
+
+        if (indexPath.row == 0) {
+            NSString *version = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"];
+            cell.detailTextLabel.text = version;
+            cell.selectionStyle = UITableViewCellSelectionStyleNone;
+        } else if (indexPath.row == 1) {
+            // “About” 页面，设置样式以便点击跳转
+            cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+        }
     }
 
     return cell;
