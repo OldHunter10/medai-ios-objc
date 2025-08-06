@@ -35,15 +35,16 @@
     descLabel.textAlignment = NSTextAlignmentCenter;
     descLabel.translatesAutoresizingMaskIntoConstraints = NO;
     
-    UIButton *linkButton = [UIButton buttonWithType:UIButtonTypeSystem];
-    [linkButton setTitle:@"View on GitHub" forState:UIControlStateNormal];
-    [linkButton addTarget:self action:@selector(openGitHub) forControlEvents:UIControlEventTouchUpInside];
-    linkButton.translatesAutoresizingMaskIntoConstraints = NO;
+    UILabel *authorLabel = [[UILabel alloc] init];
+    authorLabel.text = @"Developed by JC";
+    authorLabel.font = [UIFont italicSystemFontOfSize:14];
+    authorLabel.textColor = [UIColor darkGrayColor];
+    authorLabel.translatesAutoresizingMaskIntoConstraints = NO;
     
     [self.view addSubview:titleLabel];
     [self.view addSubview:versionLabel];
     [self.view addSubview:descLabel];
-    [self.view addSubview:linkButton];
+    [self.view addSubview:authorLabel];
     
     [NSLayoutConstraint activateConstraints:@[
         [titleLabel.centerXAnchor constraintEqualToAnchor:self.view.centerXAnchor],
@@ -56,16 +57,9 @@
         [descLabel.centerXAnchor constraintEqualToAnchor:self.view.centerXAnchor],
         [descLabel.widthAnchor constraintEqualToAnchor:self.view.widthAnchor multiplier:0.7],
         
-        [linkButton.topAnchor constraintEqualToAnchor:descLabel.bottomAnchor constant:30],
-        [linkButton.centerXAnchor constraintEqualToAnchor:self.view.centerXAnchor],
+        [authorLabel.centerXAnchor constraintEqualToAnchor:self.view.centerXAnchor],
+        [authorLabel.topAnchor constraintEqualToAnchor:descLabel.bottomAnchor constant:30],
     ]];
-}
-
-- (void)openGitHub {
-    NSURL *url = [NSURL URLWithString:@"https://github.com/oldhunter10/medai-ios-objc"];
-    if ([[UIApplication sharedApplication] canOpenURL:url]) {
-        [[UIApplication sharedApplication] openURL:url options:@{} completionHandler:nil];
-    }
 }
 
 @end
