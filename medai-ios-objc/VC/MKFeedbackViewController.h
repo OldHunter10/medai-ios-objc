@@ -2,7 +2,7 @@
 //  MKFeedbackViewController.h
 //  medai-ios-objc
 //
-//  Created by steph on 2025/8/7.
+//  Created by JC on 2025/8/7.
 //
 
 #import <UIKit/UIKit.h>

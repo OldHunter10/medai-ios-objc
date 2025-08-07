@@ -7,6 +7,7 @@
 
 #import "MKSettingsViewController.h"
 #import "HistoryManager.h"
+#import "MKFeedbackViewController.h"
 
 static NSString * const kSelectedModelKey = @"selected_model";
 static NSString * const kSelectedLanguageKey = @"selected_language";
@@ -29,7 +30,7 @@ static NSString * const kSelectedLanguageKey = @"selected_language";
     self.settings = @[
         @[@"Clear History"],
         @[@"Language", @"AI Model"],
-        @[@"App Version", @"About"]
+        @[@"App Version", @"About", @"Feedback"]
     ];
 }
 
@@ -77,6 +78,10 @@ static NSString * const kSelectedLanguageKey = @"selected_language";
         } else if (indexPath.row == 1) {
             // “About” 页面，设置样式以便点击跳转
             cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+        } else if (indexPath.row == 2) {
+            // feedback
+            MKFeedbackViewController *vc = [[MKFeedbackViewController alloc] init];
+                [self.navigationController pushViewController:vc animated:YES];
         }
     }
 
