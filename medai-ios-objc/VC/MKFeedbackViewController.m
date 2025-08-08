@@ -23,6 +23,11 @@
     self.title = @"Feedback";
     self.view.backgroundColor = [UIColor whiteColor];
     
+    [self setupUI];
+    [self registerKeyboardNotifications];
+}
+
+- (void)setupUI {
     UILabel *label = [[UILabel alloc] init];
     label.text = @"We’d love to hear your thoughts.";
     label.font = [UIFont systemFontOfSize:16];
@@ -69,6 +74,11 @@
         [self.submitButton.centerXAnchor constraintEqualToAnchor:self.view.centerXAnchor]
     ]];
     
+    // 初始判断 placeholder 显示
+    self.placeholderLabel.hidden = self.textView.text.length > 0;
+}
+
+- (void)registerKeyboardNotifications {
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(keyboardWillShow:)
                                                  name:UIKeyboardWillShowNotification object:nil];
@@ -84,13 +94,26 @@
 
 - (void)textViewDidChange:(UITextView *)textView {
     self.placeholderLabel.hidden = textView.text.length > 0;
+
+    // 可选：限制字数（200）
+    if (textView.text.length > 200) {
+        textView.text = [textView.text substringToIndex:200];
+    }
 }
 
 - (void)submitTapped {
+    if (self.textView.text.length == 0) return;
+
+    self.submitButton.enabled = NO;
+
     UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Thank you"
                                                                    message:@"Your feedback has been received."
                                                             preferredStyle:UIAlertControllerStyleAlert];
-    UIAlertAction *ok = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:nil];
+    
+    UIAlertAction *ok = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        self.submitButton.enabled = YES;
+    }];
+    
     [alert addAction:ok];
     [self presentViewController:alert animated:YES completion:nil];
     
@@ -102,13 +125,13 @@
     NSDictionary *info = notification.userInfo;
     CGRect kbFrame = [info[UIKeyboardFrameEndUserInfoKey] CGRectValue];
     
-    [UIView animateWithDuration:0.25 animations:^{
+    [UIView animateWithDuration:0.3 delay:0 options:UIViewAnimationOptionCurveEaseOut animations:^{
         self.view.transform = CGAffineTransformMakeTranslation(0, -kbFrame.size.height / 2);
-    }];
+    } completion:nil];
 }
 
 - (void)keyboardWillHide:(NSNotification *)notification {
-    [UIView animateWithDuration:0.25 animations:^{
+    [UIView animateWithDuration:0.3 animations:^{
         self.view.transform = CGAffineTransformIdentity;
     }];
 }
