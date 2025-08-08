@@ -7,9 +7,10 @@
 
 #import "MKFeedbackViewController.h"
 
-@interface MKFeedbackViewController ()
+@interface MKFeedbackViewController () <UITextViewDelegate>
 
 @property (nonatomic, strong) UITextView *textView;
+@property (nonatomic, strong) UILabel *placeholderLabel;
 @property (nonatomic, strong) UIButton *submitButton;
 
 @end
@@ -32,7 +33,16 @@
     self.textView.layer.borderWidth = 1.0;
     self.textView.layer.cornerRadius = 8.0;
     self.textView.font = [UIFont systemFontOfSize:15];
+    self.textView.delegate = self;
     self.textView.translatesAutoresizingMaskIntoConstraints = NO;
+    
+    self.placeholderLabel = [[UILabel alloc] init];
+    self.placeholderLabel.text = @"Type your feedback here...";
+    self.placeholderLabel.textColor = [UIColor lightGrayColor];
+    self.placeholderLabel.font = [UIFont systemFontOfSize:15];
+    self.placeholderLabel.translatesAutoresizingMaskIntoConstraints = NO;
+    
+    [self.textView addSubview:self.placeholderLabel];
     
     self.submitButton = [UIButton buttonWithType:UIButtonTypeSystem];
     [self.submitButton setTitle:@"Submit" forState:UIControlStateNormal];
@@ -52,9 +62,28 @@
         [self.textView.trailingAnchor constraintEqualToAnchor:self.view.trailingAnchor constant:-20],
         [self.textView.heightAnchor constraintEqualToConstant:150],
         
+        [self.placeholderLabel.topAnchor constraintEqualToAnchor:self.textView.topAnchor constant:8],
+        [self.placeholderLabel.leadingAnchor constraintEqualToAnchor:self.textView.leadingAnchor constant:5],
+        
         [self.submitButton.topAnchor constraintEqualToAnchor:self.textView.bottomAnchor constant:25],
         [self.submitButton.centerXAnchor constraintEqualToAnchor:self.view.centerXAnchor]
     ]];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(keyboardWillShow:)
+                                                 name:UIKeyboardWillShowNotification object:nil];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(keyboardWillHide:)
+                                                 name:UIKeyboardWillHideNotification object:nil];
+}
+
+- (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
+- (void)textViewDidChange:(UITextView *)textView {
+    self.placeholderLabel.hidden = textView.text.length > 0;
 }
 
 - (void)submitTapped {
@@ -66,6 +95,22 @@
     [self presentViewController:alert animated:YES completion:nil];
     
     self.textView.text = @"";
+    self.placeholderLabel.hidden = NO;
+}
+
+- (void)keyboardWillShow:(NSNotification *)notification {
+    NSDictionary *info = notification.userInfo;
+    CGRect kbFrame = [info[UIKeyboardFrameEndUserInfoKey] CGRectValue];
+    
+    [UIView animateWithDuration:0.25 animations:^{
+        self.view.transform = CGAffineTransformMakeTranslation(0, -kbFrame.size.height / 2);
+    }];
+}
+
+- (void)keyboardWillHide:(NSNotification *)notification {
+    [UIView animateWithDuration:0.25 animations:^{
+        self.view.transform = CGAffineTransformIdentity;
+    }];
 }
 
 @end
