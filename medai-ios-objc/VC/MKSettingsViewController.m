@@ -8,6 +8,7 @@
 #import "MKSettingsViewController.h"
 #import "HistoryManager.h"
 #import "MKFeedbackViewController.h"
+#import "UserDefaultsHelper.h"
 
 static NSString * const kSelectedModelKey = @"selected_model";
 static NSString * const kSelectedLanguageKey = @"selected_language";
@@ -34,6 +35,8 @@ static NSString * const kSelectedLanguageKey = @"selected_language";
     ];
 }
 
+#pragma mark - TableView Data Source
+
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
     return self.settings.count;
 }
@@ -50,7 +53,7 @@ static NSString * const kSelectedLanguageKey = @"selected_language";
     }
 
     cell.textLabel.text = self.settings[indexPath.section][indexPath.row];
-    cell.detailTextLabel.text = @""; // 清空旧值，防止复用问题
+    cell.detailTextLabel.text = @"";
     cell.accessoryType = UITableViewCellAccessoryNone;
     cell.selectionStyle = UITableViewCellSelectionStyleNone;
     
@@ -59,34 +62,30 @@ static NSString * const kSelectedLanguageKey = @"selected_language";
         cell.selectionStyle = UITableViewCellSelectionStyleDefault;
 
         if (indexPath.row == 0) {
-            NSString *lang = [[NSUserDefaults standardUserDefaults] stringForKey:kSelectedLanguageKey] ?: @"English";
+            NSString *lang = [UserDefaultsHelper stringForKey:kSelectedLanguageKey defaultValue:@"English"];
             cell.detailTextLabel.text = lang;
         } else if (indexPath.row == 1) {
-            NSString *selectedModel = [[NSUserDefaults standardUserDefaults] stringForKey:kSelectedModelKey] ?: @"Simple";
+            NSString *selectedModel = [UserDefaultsHelper stringForKey:kSelectedModelKey defaultValue:@"Simple"];
             cell.detailTextLabel.text = selectedModel;
         }
     }
 
     if (indexPath.section == 2) {
         cell.selectionStyle = UITableViewCellSelectionStyleDefault;
-        cell.accessoryType = UITableViewCellAccessoryNone;
 
         if (indexPath.row == 0) {
             NSString *version = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"];
             cell.detailTextLabel.text = version;
             cell.selectionStyle = UITableViewCellSelectionStyleNone;
-        } else if (indexPath.row == 1) {
-            // “About” 页面，设置样式以便点击跳转
+        } else {
             cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-        } else if (indexPath.row == 2) {
-            // feedback
-            MKFeedbackViewController *vc = [[MKFeedbackViewController alloc] init];
-                [self.navigationController pushViewController:vc animated:YES];
         }
     }
 
     return cell;
 }
+
+#pragma mark - TableView Delegate
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     if (indexPath.section == 0 && indexPath.row == 0) {
@@ -97,8 +96,16 @@ static NSString * const kSelectedLanguageKey = @"selected_language";
         } else if (indexPath.row == 1) {
             [self presentModelSelector];
         }
+    } else if (indexPath.section == 2) {
+        if (indexPath.row == 2) {
+            MKFeedbackViewController *vc = [[MKFeedbackViewController alloc] init];
+            [self.navigationController pushViewController:vc animated:YES];
+        }
+        // About 可加 else if (indexPath.row == 1) 跳转 About 页面
     }
 }
+
+#pragma mark - Actions
 
 - (void)confirmClearHistory {
     UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Clear History"
@@ -124,19 +131,17 @@ static NSString * const kSelectedLanguageKey = @"selected_language";
         UIAlertAction *action = [UIAlertAction actionWithTitle:model
                                                          style:UIAlertActionStyleDefault
                                                        handler:^(UIAlertAction * _Nonnull action) {
-            [[NSUserDefaults standardUserDefaults] setObject:model forKey:kSelectedModelKey];
-            [[NSUserDefaults standardUserDefaults] synchronize];
+            [UserDefaultsHelper setString:model forKey:kSelectedModelKey];
             [self.tableView reloadData];
         }];
         [alert addAction:action];
     }
 
-    UIAlertAction *cancel = [UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil];
-    [alert addAction:cancel];
+    [alert addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
     
     alert.popoverPresentationController.sourceView = self.view;
     alert.popoverPresentationController.sourceRect = self.view.bounds;
-
+    
     [self presentViewController:alert animated:YES completion:nil];
 }
 
@@ -151,19 +156,17 @@ static NSString * const kSelectedLanguageKey = @"selected_language";
         UIAlertAction *action = [UIAlertAction actionWithTitle:lang
                                                          style:UIAlertActionStyleDefault
                                                        handler:^(UIAlertAction * _Nonnull action) {
-            [[NSUserDefaults standardUserDefaults] setObject:lang forKey:kSelectedLanguageKey];
-            [[NSUserDefaults standardUserDefaults] synchronize];
+            [UserDefaultsHelper setString:lang forKey:kSelectedLanguageKey];
             [self.tableView reloadData];
         }];
         [alert addAction:action];
     }
-    
-    UIAlertAction *cancel = [UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil];
-    [alert addAction:cancel];
+
+    [alert addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
     
     alert.popoverPresentationController.sourceView = self.view;
     alert.popoverPresentationController.sourceRect = self.view.bounds;
-
+    
     [self presentViewController:alert animated:YES completion:nil];
 }
 

@@ -8,6 +8,10 @@
 #ifndef Constants_h
 #define Constants_h
 
+#define kSelectedLanguageKey @"selected_language"
+#define kSelectedModelKey @"selected_model"
+#define kHasLaunchedBeforeKey @"has_launched_before"
+
 #define HISTORY_KEY @"user_query_history"
 #define MAX_HISTORY_COUNT 20
 
