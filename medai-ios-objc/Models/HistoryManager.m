@@ -46,4 +46,12 @@
     [[NSUserDefaults standardUserDefaults] synchronize];
 }
 
++ (void)deleteRecord:(NSString *)recordText {
+    NSMutableArray *history = [[[self class] loadHistory] mutableCopy];
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"text != %@", recordText];
+    NSArray *filtered = [history filteredArrayUsingPredicate:predicate];
+    [[NSUserDefaults standardUserDefaults] setObject:filtered forKey:@"history"];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+}
+
 @end

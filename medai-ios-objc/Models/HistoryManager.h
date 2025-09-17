@@ -12,5 +12,5 @@
 + (void)saveQuery:(NSString *)query;
 + (NSArray<NSString *> *)loadHistory;
 + (void)clearHistory;
-
++ (void)deleteRecord:(NSString *)recordText;
 @end
