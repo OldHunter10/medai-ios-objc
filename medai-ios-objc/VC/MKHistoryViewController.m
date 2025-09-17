@@ -46,6 +46,14 @@
     // 长按删除
     UILongPressGestureRecognizer *longPress = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleLongPress:)];
     [self.tableView addGestureRecognizer:longPress];
+    
+    UILabel *countLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, 20)];
+    countLabel.textAlignment = NSTextAlignmentCenter;
+    countLabel.font = [UIFont systemFontOfSize:12];
+    countLabel.textColor = [UIColor grayColor];
+    countLabel.tag = 999;
+
+    [self.view addSubview:countLabel];
 }
 
 - (void)viewWillAppear:(BOOL)animated {
@@ -102,6 +110,10 @@
         }];
         self.filteredItems = [self.historyItems filteredArrayUsingPredicate:predicate];
     }
+    
+    UILabel *label = [self.view viewWithTag:999];
+    label.text = [NSString stringWithFormat:@"%lu result%@", (unsigned long)self.filteredItems.count, self.filteredItems.count == 1 ? @"" : @"s"];
+    
     [self.tableView reloadData];
 }
 
