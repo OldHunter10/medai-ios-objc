@@ -8,9 +8,12 @@
 #import "MKHistoryViewController.h"
 #import "HistoryManager.h"
 
-@interface MKHistoryViewController ()
+@interface MKHistoryViewController () <UISearchBarDelegate>
 
 @property (nonatomic, strong) NSArray<NSString *> *historyItems;
+@property (nonatomic, strong) NSArray<NSString *> *filteredItems;
+
+@property (nonatomic, strong) UISearchBar *searchBar;
 
 @end
 
@@ -23,9 +26,20 @@
     self.view.backgroundColor = [UIColor whiteColor];
     
     self.historyItems = [HistoryManager loadHistory];
-    
+    self.filteredItems = self.historyItems;
+
     [self.tableView registerClass:[UITableViewCell class] forCellReuseIdentifier:@"HistoryCell"];
     
+    // 添加搜索框
+    self.searchBar = [[UISearchBar alloc] init];
+    self.searchBar.placeholder = @"Search history...";
+    self.searchBar.delegate = self;
+    self.searchBar.translatesAutoresizingMaskIntoConstraints = NO;
+    self.searchBar.returnKeyType = UIReturnKeyDone;
+    
+    self.tableView.tableHeaderView = self.searchBar;
+
+    // 清空按钮
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc]
                                               initWithTitle:@"Clear"
                                               style:UIBarButtonItemStylePlain
@@ -37,8 +51,29 @@
     [super viewWillAppear:animated];
     
     self.historyItems = [HistoryManager loadHistory];
+    self.filteredItems = self.historyItems;
     [self.tableView reloadData];
 }
+
+#pragma mark - Search
+
+- (void)searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText {
+    if (searchText.length == 0) {
+        self.filteredItems = self.historyItems;
+    } else {
+        NSPredicate *predicate = [NSPredicate predicateWithBlock:^BOOL(NSString *item, NSDictionary *bindings) {
+            return [item.lowercaseString containsString:searchText.lowercaseString];
+        }];
+        self.filteredItems = [self.historyItems filteredArrayUsingPredicate:predicate];
+    }
+    [self.tableView reloadData];
+}
+
+- (void)searchBarSearchButtonClicked:(UISearchBar *)searchBar {
+    [searchBar resignFirstResponder];
+}
+
+#pragma mark - Clear History
 
 - (void)clearHistoryTapped {
     UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Clear History"
@@ -49,6 +84,7 @@
     UIAlertAction *confirm = [UIAlertAction actionWithTitle:@"Delete" style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull action) {
         [HistoryManager clearHistory];
         self.historyItems = @[];
+        self.filteredItems = @[];
         [self.tableView reloadData];
     }];
     
@@ -60,15 +96,13 @@
 #pragma mark - Table view data source
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return self.historyItems.count;
+    return self.filteredItems.count;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"HistoryCell" forIndexPath:indexPath];
-    
-    cell.textLabel.text = self.historyItems[indexPath.row];
+    cell.textLabel.text = self.filteredItems[indexPath.row];
     cell.textLabel.font = [UIFont systemFontOfSize:16];
-    
     return cell;
 }
 
@@ -77,15 +111,10 @@
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
     
-    NSString *selected = self.historyItems[indexPath.row];
+    NSString *selected = self.filteredItems[indexPath.row];
+    NSLog(@"Selected history: %@", selected);
     
-    // Send notification with selected text
-    [[NSNotificationCenter defaultCenter] postNotificationName:@"MKDidSelectHistoryText"
-                                                        object:nil
-                                                      userInfo:@{@"text": selected}];
-    
-    // Optional: pop to root (home) view controller
-    [self.navigationController popToRootViewControllerAnimated:YES];
+    // TODO: optionally auto-analyse again
 }
 
 @end
