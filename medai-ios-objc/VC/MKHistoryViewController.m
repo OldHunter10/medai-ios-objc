@@ -12,7 +12,6 @@
 
 @property (nonatomic, strong) NSArray<NSString *> *historyItems;
 @property (nonatomic, strong) NSArray<NSString *> *filteredItems;
-
 @property (nonatomic, strong) UISearchBar *searchBar;
 
 @end
@@ -30,29 +29,63 @@
 
     [self.tableView registerClass:[UITableViewCell class] forCellReuseIdentifier:@"HistoryCell"];
     
-    // 添加搜索框
     self.searchBar = [[UISearchBar alloc] init];
     self.searchBar.placeholder = @"Search history...";
     self.searchBar.delegate = self;
     self.searchBar.translatesAutoresizingMaskIntoConstraints = NO;
     self.searchBar.returnKeyType = UIReturnKeyDone;
-    
     self.tableView.tableHeaderView = self.searchBar;
 
-    // 清空按钮
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc]
                                               initWithTitle:@"Clear"
                                               style:UIBarButtonItemStylePlain
                                               target:self
                                               action:@selector(clearHistoryTapped)];
+    
+    // 注册长按手势用于删除（也可以做刷新）
+    UILongPressGestureRecognizer *longPress = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleLongPress:)];
+    [self.tableView addGestureRecognizer:longPress];
 }
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
-    
     self.historyItems = [HistoryManager loadHistory];
     self.filteredItems = self.historyItems;
     [self.tableView reloadData];
+}
+
+#pragma mark - Long Press
+
+- (void)handleLongPress:(UILongPressGestureRecognizer *)gesture {
+    if (gesture.state != UIGestureRecognizerStateBegan) return;
+    
+    CGPoint location = [gesture locationInView:self.tableView];
+    NSIndexPath *indexPath = [self.tableView indexPathForRowAtPoint:location];
+    if (!indexPath || indexPath.row >= self.filteredItems.count) return;
+
+    NSString *selectedItem = self.filteredItems[indexPath.row];
+    
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Delete Record"
+                                                                   message:@"Are you sure you want to remove this entry?"
+                                                            preferredStyle:UIAlertControllerStyleAlert];
+    
+    UIAlertAction *delete = [UIAlertAction actionWithTitle:@"Delete"
+                                                     style:UIAlertActionStyleDestructive
+                                                   handler:^(UIAlertAction * _Nonnull action) {
+        [HistoryManager deleteRecord:selectedItem];
+        self.historyItems = [HistoryManager loadHistory];
+        self.filteredItems = self.historyItems;
+        [self.tableView reloadData];
+    }];
+    
+    UIAlertAction *cancel = [UIAlertAction actionWithTitle:@"Cancel"
+                                                     style:UIAlertActionStyleCancel
+                                                   handler:nil];
+    
+    [alert addAction:delete];
+    [alert addAction:cancel];
+    
+    [self presentViewController:alert animated:YES completion:nil];
 }
 
 #pragma mark - Search
@@ -73,7 +106,7 @@
     [searchBar resignFirstResponder];
 }
 
-#pragma mark - Clear History
+#pragma mark - Clear All
 
 - (void)clearHistoryTapped {
     UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Clear History"
@@ -93,7 +126,7 @@
     [self presentViewController:alert animated:YES completion:nil];
 }
 
-#pragma mark - Table view data source
+#pragma mark - TableView
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
     return self.filteredItems.count;
@@ -106,7 +139,7 @@
     return cell;
 }
 
-#pragma mark - Table view delegate
+#pragma mark - Selection
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
@@ -114,7 +147,6 @@
     NSString *selected = self.filteredItems[indexPath.row];
     NSLog(@"Selected history: %@", selected);
 
-    // Find the MKHomeViewController and pass data back
     for (UIViewController *vc in self.navigationController.viewControllers) {
         if ([vc isKindOfClass:NSClassFromString(@"MKHomeViewController")]) {
             if ([vc respondsToSelector:@selector(populateInputWithText:)]) {
