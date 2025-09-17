@@ -10,7 +10,7 @@
 #import "HistoryManager.h"
 #import "MKHistoryViewController.h"
 
-@interface MKHomeViewController ()
+@interface MKHomeViewController () <UITextFieldDelegate>
 
 @property (nonatomic, strong) UITextField *symptomInputField;
 @property (nonatomic, strong) UIButton *analyzeButton;
@@ -22,6 +22,10 @@
 
 @implementation MKHomeViewController
 
+- (void)textFieldDidBeginEditing:(UITextField *)textField {
+    textField.placeholder = @"";
+}
+
 - (void)viewDidLoad {
     [super viewDidLoad];
     
@@ -32,6 +36,8 @@
     
     UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(dismissKeyboard)];
     [self.view addGestureRecognizer:tap];
+    
+    self.symptomInputField.delegate = self;
 }
 
 - (void)dismissKeyboard {
