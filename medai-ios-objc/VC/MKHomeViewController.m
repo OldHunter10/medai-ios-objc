@@ -201,11 +201,7 @@
     [HistoryManager saveQuery:inputText];
     
     self.symptomInputField.text = @"";
-    //    self.symptomInputField.text = nil;
-    
-//    if (inputText.length > 3) {
-//        self.symptomInputField.text = @"";
-//    }
+
 }
 
 - (void)displayResult:(NSDictionary *)result {
