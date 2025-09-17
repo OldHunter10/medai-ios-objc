@@ -31,7 +31,7 @@
     
     // 搜索框
     self.searchBar = [[UISearchBar alloc] init];
-    self.searchBar.placeholder = @"Search history...";
+    self.searchBar.placeholder = @"Search past symptom inputs";
     self.searchBar.delegate = self;
     self.searchBar.returnKeyType = UIReturnKeyDone;
     self.tableView.tableHeaderView = self.searchBar;
