@@ -10,8 +10,8 @@
 
 @interface MKHistoryViewController () <UISearchBarDelegate>
 
-@property (nonatomic, strong) NSArray<NSString *> *historyItems;
-@property (nonatomic, strong) NSArray<NSString *> *filteredItems;
+@property (nonatomic, strong) NSArray<NSDictionary *> *historyItems;
+@property (nonatomic, strong) NSArray<NSDictionary *> *filteredItems;
 @property (nonatomic, strong) UISearchBar *searchBar;
 
 @end
@@ -29,20 +29,21 @@
 
     [self.tableView registerClass:[UITableViewCell class] forCellReuseIdentifier:@"HistoryCell"];
     
+    // 搜索框
     self.searchBar = [[UISearchBar alloc] init];
     self.searchBar.placeholder = @"Search history...";
     self.searchBar.delegate = self;
-    self.searchBar.translatesAutoresizingMaskIntoConstraints = NO;
     self.searchBar.returnKeyType = UIReturnKeyDone;
     self.tableView.tableHeaderView = self.searchBar;
-
+    
+    // 清空按钮
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc]
                                               initWithTitle:@"Clear"
                                               style:UIBarButtonItemStylePlain
                                               target:self
                                               action:@selector(clearHistoryTapped)];
     
-    // 注册长按手势用于删除（也可以做刷新）
+    // 长按删除
     UILongPressGestureRecognizer *longPress = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleLongPress:)];
     [self.tableView addGestureRecognizer:longPress];
 }
@@ -54,7 +55,7 @@
     [self.tableView reloadData];
 }
 
-#pragma mark - Long Press
+#pragma mark - Long Press to Delete
 
 - (void)handleLongPress:(UILongPressGestureRecognizer *)gesture {
     if (gesture.state != UIGestureRecognizerStateBegan) return;
@@ -63,8 +64,9 @@
     NSIndexPath *indexPath = [self.tableView indexPathForRowAtPoint:location];
     if (!indexPath || indexPath.row >= self.filteredItems.count) return;
 
-    NSString *selectedItem = self.filteredItems[indexPath.row];
-    
+    NSDictionary *entry = self.filteredItems[indexPath.row];
+    NSString *text = entry[@"text"] ?: @"";
+
     UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Delete Record"
                                                                    message:@"Are you sure you want to remove this entry?"
                                                             preferredStyle:UIAlertControllerStyleAlert];
@@ -72,7 +74,7 @@
     UIAlertAction *delete = [UIAlertAction actionWithTitle:@"Delete"
                                                      style:UIAlertActionStyleDestructive
                                                    handler:^(UIAlertAction * _Nonnull action) {
-        [HistoryManager deleteRecord:selectedItem];
+        [HistoryManager deleteRecord:text];
         self.historyItems = [HistoryManager loadHistory];
         self.filteredItems = self.historyItems;
         [self.tableView reloadData];
@@ -94,8 +96,9 @@
     if (searchText.length == 0) {
         self.filteredItems = self.historyItems;
     } else {
-        NSPredicate *predicate = [NSPredicate predicateWithBlock:^BOOL(NSString *item, NSDictionary *bindings) {
-            return [item.lowercaseString containsString:searchText.lowercaseString];
+        NSPredicate *predicate = [NSPredicate predicateWithBlock:^BOOL(NSDictionary *item, NSDictionary *bindings) {
+            NSString *text = item[@"text"] ?: @"";
+            return [text.lowercaseString containsString:searchText.lowercaseString];
         }];
         self.filteredItems = [self.historyItems filteredArrayUsingPredicate:predicate];
     }
@@ -134,8 +137,15 @@
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"HistoryCell" forIndexPath:indexPath];
-    cell.textLabel.text = self.filteredItems[indexPath.row];
+    
+    NSDictionary *entry = self.filteredItems[indexPath.row];
+    cell.textLabel.text = entry[@"text"];
+    cell.detailTextLabel.text = entry[@"date"];
+    
     cell.textLabel.font = [UIFont systemFontOfSize:16];
+    cell.detailTextLabel.font = [UIFont systemFontOfSize:12];
+    cell.detailTextLabel.textColor = [UIColor grayColor];
+    
     return cell;
 }
 
@@ -144,7 +154,7 @@
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
     
-    NSString *selected = self.filteredItems[indexPath.row];
+    NSString *selected = self.filteredItems[indexPath.row][@"text"];
     NSLog(@"Selected history: %@", selected);
 
     for (UIViewController *vc in self.navigationController.viewControllers) {
