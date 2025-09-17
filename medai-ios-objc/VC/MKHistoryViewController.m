@@ -151,8 +151,7 @@
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"HistoryCell" forIndexPath:indexPath];
     
     NSDictionary *entry = self.filteredItems[indexPath.row];
-    cell.textLabel.text = entry[@"text"];
-    cell.detailTextLabel.text = entry[@"date"];
+    cell.textLabel.text = [NSString stringWithFormat:@"%ld. %@", (long)(indexPath.row + 1), entry[@"text"]];    cell.detailTextLabel.text = entry[@"date"];
     
     cell.textLabel.font = [UIFont systemFontOfSize:16];
     cell.detailTextLabel.font = [UIFont systemFontOfSize:12];
