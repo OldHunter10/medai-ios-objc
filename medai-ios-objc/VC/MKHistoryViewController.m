@@ -24,7 +24,8 @@
     self.title = @"History";
     self.view.backgroundColor = [UIColor whiteColor];
     
-    self.historyItems = [HistoryManager loadHistory];
+//    self.historyItems = [HistoryManager loadHistory];
+    self.historyItems = [[HistoryManager loadHistory] subarrayWithRange:NSMakeRange(0, MIN(100, [HistoryManager loadHistory].count))];
     self.filteredItems = self.historyItems;
 
     [self.tableView registerClass:[UITableViewCell class] forCellReuseIdentifier:@"HistoryCell"];
