@@ -178,6 +178,11 @@
     
     if (inputText.length == 0) {
         self.resultTextView.text = @"Please enter at least one symptom.";
+        
+        // 添加震动反馈
+            UIImpactFeedbackGenerator *generator = [[UIImpactFeedbackGenerator alloc] initWithStyle:UIImpactFeedbackStyleLight];
+            [generator impactOccurred];
+        
         return;
     }
 
