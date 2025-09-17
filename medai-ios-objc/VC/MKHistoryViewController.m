@@ -113,8 +113,17 @@
     
     NSString *selected = self.filteredItems[indexPath.row];
     NSLog(@"Selected history: %@", selected);
-    
-    // TODO: optionally auto-analyse again
+
+    // Find the MKHomeViewController and pass data back
+    for (UIViewController *vc in self.navigationController.viewControllers) {
+        if ([vc isKindOfClass:NSClassFromString(@"MKHomeViewController")]) {
+            if ([vc respondsToSelector:@selector(populateInputWithText:)]) {
+                [vc performSelector:@selector(populateInputWithText:) withObject:selected];
+            }
+            [self.navigationController popToViewController:vc animated:YES];
+            break;
+        }
+    }
 }
 
 @end

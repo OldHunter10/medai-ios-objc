@@ -228,4 +228,14 @@
     //    [self.resultTextView scrollRangeToVisible:NSMakeRange(0, 0)]; // looked jumpy
 }
 
+#pragma mark - External Methods
+
+- (void)populateInputWithText:(NSString *)text {
+    if (text.length > 0) {
+        self.symptomInputField.text = text;
+        [self.symptomInputField becomeFirstResponder]; // 自动聚焦，体验好一点
+    }
+}
+
+
 @end
