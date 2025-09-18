@@ -50,6 +50,7 @@
     self.symptomInputField.placeholder = @"Enter symptoms (e.g. fever headache)";
     self.symptomInputField.borderStyle = UITextBorderStyleRoundedRect;
     self.symptomInputField.translatesAutoresizingMaskIntoConstraints = NO;
+    self.symptomInputField.autocapitalizationType = UITextAutocapitalizationTypeSentences;
     [self.view addSubview:self.symptomInputField];
     
     self.analyzeButton = [UIButton buttonWithType:UIButtonTypeSystem];
