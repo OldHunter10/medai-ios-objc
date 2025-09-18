@@ -204,6 +204,8 @@
     self.symptomInputField.text = @"";
     
     [self.cpResultButton setEnabled:YES];
+    
+    [self.symptomInputField resignFirstResponder];
 
 }
 
