@@ -178,7 +178,8 @@
     
     if (inputText.length == 0) {
         self.resultTextView.text = @"Please enter at least one symptom.";
-        
+        self.cpResultButton.enabled = NO;
+
         // 添加震动反馈
             UIImpactFeedbackGenerator *generator = [[UIImpactFeedbackGenerator alloc] initWithStyle:UIImpactFeedbackStyleLight];
             [generator impactOccurred];
@@ -201,6 +202,8 @@
     [HistoryManager saveQuery:inputText];
     
     self.symptomInputField.text = @"";
+    
+    [self.cpResultButton setEnabled:YES];
 
 }
 
