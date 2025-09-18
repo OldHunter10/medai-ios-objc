@@ -176,6 +176,8 @@
 }
 
 - (void)handleAnalyzeButtonTapped {
+    [self.resultTextView setContentOffset:CGPointZero animated:NO];
+    
     NSString *inputText = [self.symptomInputField.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
     
     if (inputText.length == 0) {
