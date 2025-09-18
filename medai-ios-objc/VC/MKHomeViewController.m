@@ -63,6 +63,7 @@
     self.resultTextView.editable = NO;
     self.resultTextView.font = [UIFont systemFontOfSize:16];
     self.resultTextView.translatesAutoresizingMaskIntoConstraints = NO;
+    self.resultTextView.backgroundColor = [UIColor colorWithWhite:0.95 alpha:1.0];
     [self.view addSubview:self.resultTextView];
     
     self.cpResultButton = [UIButton buttonWithType:UIButtonTypeSystem];
