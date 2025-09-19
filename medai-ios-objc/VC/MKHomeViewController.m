@@ -164,6 +164,7 @@
     
     if (copied.length > 0) {
         self.symptomInputField.text = copied;
+        [self handleAnalyzeButtonTapped]; // 自动分析
     } else {
         // NSLog(@"Pasteboard is empty"); // user might be confused
     }
