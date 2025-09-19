@@ -235,11 +235,14 @@
         }
     }
 
+    // 添加时间戳
+    NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
+    formatter.dateFormat = @"yyyy-MM-dd HH:mm";
+    NSString *timeString = [formatter stringFromDate:[NSDate date]];
+    [output appendFormat:@"\n\nAnalyzed at: %@", timeString];
+
     self.resultTextView.text = output;
-        
-    // scroll back to top after updating result
     [self.resultTextView setContentOffset:CGPointZero animated:YES];
-    //    [self.resultTextView scrollRangeToVisible:NSMakeRange(0, 0)]; // looked jumpy
 }
 
 #pragma mark - External Methods
