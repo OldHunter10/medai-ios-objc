@@ -147,6 +147,9 @@
     
     [UIPasteboard generalPasteboard].string = text;
     
+    UIImpactFeedbackGenerator *haptic = [[UIImpactFeedbackGenerator alloc] initWithStyle:UIImpactFeedbackStyleLight];
+    [haptic impactOccurred];
+    
     UIAlertController *alert = [UIAlertController alertControllerWithTitle:nil
                                                                    message:@"Copied to clipboard"
                                                             preferredStyle:UIAlertControllerStyleAlert];
