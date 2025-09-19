@@ -188,33 +188,27 @@
         self.resultTextView.text = @"Please enter at least one symptom.";
         self.cpResultButton.enabled = NO;
 
-        // 添加震动反馈
-            UIImpactFeedbackGenerator *generator = [[UIImpactFeedbackGenerator alloc] initWithStyle:UIImpactFeedbackStyleLight];
-            [generator impactOccurred];
+        UIImpactFeedbackGenerator *generator = [[UIImpactFeedbackGenerator alloc] initWithStyle:UIImpactFeedbackStyleLight];
+        [generator impactOccurred];
         
         return;
     }
 
     self.resultTextView.text = @"Analysing...";
+    [self.analyzeButton setTitle:@"Analysing…" forState:UIControlStateNormal]; // <-- 新增
     [self.loadingView startAnimating];
-
 
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         NSDictionary *result = [SymptomAnalyzer analyzeSymptomsFromText:inputText];
         [self.loadingView stopAnimating];
-        
+        [self.analyzeButton setTitle:@"Analyse" forState:UIControlStateNormal]; // <-- 恢复原样
         [self displayResult:result];
     });
     
-    //
     [HistoryManager saveQuery:inputText];
-    
     self.symptomInputField.text = @"";
-    
     [self.cpResultButton setEnabled:YES];
-    
     [self.symptomInputField resignFirstResponder];
-
 }
 
 - (void)displayResult:(NSDictionary *)result {
