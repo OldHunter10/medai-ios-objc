@@ -78,6 +78,18 @@
         [self.logoutButton.topAnchor constraintEqualToAnchor:self.emailLabel.bottomAnchor constant:30],
         [self.logoutButton.centerXAnchor constraintEqualToAnchor:self.view.centerXAnchor]
     ]];
+    
+    UIView *separator = [[UIView alloc] init];
+    separator.backgroundColor = [UIColor colorWithWhite:0.9 alpha:1.0];
+    separator.translatesAutoresizingMaskIntoConstraints = NO;
+    [self.view addSubview:separator];
+
+    [NSLayoutConstraint activateConstraints:@[
+        [separator.heightAnchor constraintEqualToConstant:1],
+        [separator.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor constant:20],
+        [separator.trailingAnchor constraintEqualToAnchor:self.view.trailingAnchor constant:-20],
+        [separator.topAnchor constraintEqualToAnchor:self.logoutButton.bottomAnchor constant:30]
+    ]];
 }
 
 - (void)handleLogout {
