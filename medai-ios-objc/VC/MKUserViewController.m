@@ -38,16 +38,14 @@
     
     self.nameLabel = [[UILabel alloc] init];
     self.nameLabel.text = @"JC Gu";
-    self.nameLabel.font = [UIFont boldSystemFontOfSize:20];
+    self.nameLabel.font = [UIFont preferredFontForTextStyle:UIFontTextStyleHeadline];
     self.nameLabel.textAlignment = NSTextAlignmentCenter;
-    
-//    self.nameLabel.translatesAutoresizingMaskIntoConstraints = YES;
     self.nameLabel.translatesAutoresizingMaskIntoConstraints = NO;
     [self.view addSubview:self.nameLabel];
-    
+
     self.emailLabel = [[UILabel alloc] init];
     self.emailLabel.text = @"jcg@qq.com";
-    self.emailLabel.font = [UIFont systemFontOfSize:16];
+    self.emailLabel.font = [UIFont preferredFontForTextStyle:UIFontTextStyleSubheadline];
     self.emailLabel.textColor = [UIColor grayColor];
     self.emailLabel.textAlignment = NSTextAlignmentCenter;
     self.emailLabel.translatesAutoresizingMaskIntoConstraints = NO;
