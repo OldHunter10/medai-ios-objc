@@ -32,6 +32,8 @@
     self.avatarImageView.translatesAutoresizingMaskIntoConstraints = NO;
     self.avatarImageView.tintColor = [UIColor systemGrayColor];
     self.avatarImageView.contentMode = UIViewContentModeScaleAspectFit;
+    self.avatarImageView.layer.cornerRadius = 50;
+    self.avatarImageView.clipsToBounds = YES;
     [self.view addSubview:self.avatarImageView];
     
     self.nameLabel = [[UILabel alloc] init];
