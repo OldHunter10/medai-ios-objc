@@ -81,7 +81,19 @@
 }
 
 - (void)handleLogout {
-    NSLog(@"Log out tapped (not implemented)");
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Log Out"
+                                                                   message:@"Are you sure you want to log out?"
+                                                            preferredStyle:UIAlertControllerStyleAlert];
+    
+    UIAlertAction *cancel = [UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil];
+    UIAlertAction *logout = [UIAlertAction actionWithTitle:@"Log Out" style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull action) {
+        NSLog(@"User logged out"); // Future: trigger actual logout logic
+    }];
+    
+    [alert addAction:cancel];
+    [alert addAction:logout];
+    
+    [self presentViewController:alert animated:YES completion:nil];
 }
 
 @end
