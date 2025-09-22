@@ -107,12 +107,15 @@
 
     self.submitButton.enabled = NO;
 
+    UIImpactFeedbackGenerator *generator = [[UIImpactFeedbackGenerator alloc] initWithStyle:UIImpactFeedbackStyleMedium];
+    [generator impactOccurred];
+
     UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Thank you"
                                                                    message:@"Your feedback has been received."
                                                             preferredStyle:UIAlertControllerStyleAlert];
     
     UIAlertAction *ok = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
-        self.submitButton.enabled = YES;
+        self.submitButton.enabled = NO;
     }];
     
     [alert addAction:ok];
