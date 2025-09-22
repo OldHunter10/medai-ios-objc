@@ -123,6 +123,8 @@
     
     self.textView.text = @"";
     self.placeholderLabel.hidden = NO;
+    
+    [self.textView resignFirstResponder];
 }
 
 - (void)keyboardWillShow:(NSNotification *)notification {
