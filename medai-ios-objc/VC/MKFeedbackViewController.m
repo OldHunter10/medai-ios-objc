@@ -136,4 +136,12 @@
     }];
 }
 
+- (void)textViewDidBeginEditing:(UITextView *)textView {
+    textView.layer.borderColor = [UIColor systemBlueColor].CGColor;
+}
+
+- (void)textViewDidEndEditing:(UITextView *)textView {
+    textView.layer.borderColor = [UIColor lightGrayColor].CGColor;
+}
+
 @end
