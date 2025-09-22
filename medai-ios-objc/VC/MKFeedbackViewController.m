@@ -53,6 +53,7 @@
     [self.submitButton setTitle:@"Submit" forState:UIControlStateNormal];
     [self.submitButton addTarget:self action:@selector(submitTapped) forControlEvents:UIControlEventTouchUpInside];
     self.submitButton.translatesAutoresizingMaskIntoConstraints = NO;
+    self.submitButton.enabled = NO;
     
     [self.view addSubview:label];
     [self.view addSubview:self.textView];
@@ -94,8 +95,8 @@
 
 - (void)textViewDidChange:(UITextView *)textView {
     self.placeholderLabel.hidden = textView.text.length > 0;
+    self.submitButton.enabled = textView.text.length > 0;
 
-    // 可选：限制字数（200）
     if (textView.text.length > 200) {
         textView.text = [textView.text substringToIndex:200];
     }
