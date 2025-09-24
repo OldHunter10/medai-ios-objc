@@ -44,7 +44,7 @@
     self.textView = [[UITextView alloc] init];
     self.textView.editable = NO;
     self.textView.scrollEnabled = YES;
-    self.textView.font = [UIFont systemFontOfSize:16];
+    self.textView.font = [UIFont systemFontOfSize:17 weight:UIFontWeightRegular];
     self.textView.textColor = [UIColor darkTextColor];
     self.textView.backgroundColor = [UIColor whiteColor];
     self.textView.layer.cornerRadius = 10;
@@ -53,6 +53,7 @@
     self.textView.layer.shadowOffset = CGSizeMake(0, 2);
     self.textView.layer.shadowRadius = 4;
     self.textView.translatesAutoresizingMaskIntoConstraints = NO;
+    self.textView.textContainerInset = UIEdgeInsetsMake(20, 16, 20, 16);
     
     [self.view addSubview:self.textView];
     
