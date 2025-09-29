@@ -95,7 +95,20 @@
     if (info) {
         self.resultTextView.text = info;
     } else {
-        self.resultTextView.text = @"No information found for that drug.";
+        // 简单模糊匹配
+        __block NSString *closestMatch = nil;
+        [self.drugDatabase enumerateKeysAndObjectsUsingBlock:^(NSString *drug, NSString *desc, BOOL *stop) {
+            if ([drug containsString:key]) {
+                closestMatch = desc;
+                *stop = YES;
+            }
+        }];
+        
+        if (closestMatch) {
+            self.resultTextView.text = [NSString stringWithFormat:@"(Approximate match)\n%@", closestMatch];
+        } else {
+            self.resultTextView.text = @"No information found for that drug.";
+        }
     }
 }
 
