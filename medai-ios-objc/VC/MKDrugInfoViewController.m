@@ -74,6 +74,13 @@
         [self.randomButton.topAnchor constraintEqualToAnchor:self.resultTextView.bottomAnchor constant:20],
         [self.randomButton.centerXAnchor constraintEqualToAnchor:self.view.centerXAnchor]
     ]];
+    
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(dismissKeyboard)];
+    [self.view addGestureRecognizer:tap];
+}
+
+- (void)dismissKeyboard {
+    [self.view endEditing:YES];
 }
 
 #pragma mark - Search
