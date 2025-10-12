@@ -31,6 +31,18 @@
     
     [self setupSearchBar];
     self.filteredSymptoms = self.symptomList;
+    
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        if (self.symptomList.count > 0) {
+            NSString *first = self.symptomList[0];
+            NSDictionary *info = self.symptomGuide[first];
+            NSString *msg = [NSString stringWithFormat:@"Department: %@\n\nTips: %@", info[@"department"], info[@"tips"]];
+            
+            UIAlertController *alert = [UIAlertController alertControllerWithTitle:first message:msg preferredStyle:UIAlertControllerStyleAlert];
+            [alert addAction:[UIAlertAction actionWithTitle:@"Got it" style:UIAlertActionStyleCancel handler:nil]];
+            [self presentViewController:alert animated:YES completion:nil];
+        }
+    });
 }
 
 - (void)setupData {
