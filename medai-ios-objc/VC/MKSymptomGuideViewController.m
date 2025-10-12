@@ -90,7 +90,16 @@
                                                                    message:message
                                                             preferredStyle:UIAlertControllerStyleAlert];
     
-    [alert addAction:[UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:nil]];
+    UIAlertAction *copyAction = [UIAlertAction actionWithTitle:@"Copy Tips"
+                                                         style:UIAlertActionStyleDefault
+                                                       handler:^(UIAlertAction * _Nonnull action) {
+        [UIPasteboard generalPasteboard].string = tips;
+    }];
+    [alert addAction:copyAction];
+    
+    [alert addAction:[UIAlertAction actionWithTitle:@"OK"
+                                              style:UIAlertActionStyleCancel
+                                            handler:nil]];
     
     [self presentViewController:alert animated:YES completion:nil];
 }
