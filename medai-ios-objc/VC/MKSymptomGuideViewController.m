@@ -12,6 +12,9 @@
 @property (nonatomic, strong) NSDictionary<NSString *, NSDictionary *> *symptomGuide;
 @property (nonatomic, strong) NSArray<NSString *> *symptomList;
 
+@property (nonatomic, strong) UISearchBar *searchBar;
+@property (nonatomic, strong) NSArray<NSString *> *filteredSymptoms;
+
 @end
 
 @implementation MKSymptomGuideViewController
@@ -25,6 +28,9 @@
     [self.tableView registerClass:[UITableViewCell class] forCellReuseIdentifier:@"SymptomCell"];
     
     [self setupData];
+    
+    [self setupSearchBar];
+    self.filteredSymptoms = self.symptomList;
 }
 
 - (void)setupData {
@@ -87,6 +93,26 @@
     [alert addAction:[UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:nil]];
     
     [self presentViewController:alert animated:YES completion:nil];
+}
+
+- (void)setupSearchBar {
+    self.searchBar = [[UISearchBar alloc] init];
+    self.searchBar.placeholder = @"Search symptoms...";
+    self.searchBar.delegate = self;
+    self.searchBar.translatesAutoresizingMaskIntoConstraints = NO;
+    self.tableView.tableHeaderView = self.searchBar;
+}
+
+- (void)searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText {
+    if (searchText.length == 0) {
+        self.filteredSymptoms = self.symptomList;
+    } else {
+        NSPredicate *predicate = [NSPredicate predicateWithBlock:^BOOL(NSString *symptom, NSDictionary *bindings) {
+            return [symptom.lowercaseString containsString:searchText.lowercaseString];
+        }];
+        self.filteredSymptoms = [self.symptomList filteredArrayUsingPredicate:predicate];
+    }
+    [self.tableView reloadData];
 }
 
 @end

@@ -9,7 +9,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MKSymptomGuideViewController : UITableViewController
+@interface MKSymptomGuideViewController : UITableViewController <UITableViewDelegate, UITableViewDataSource, UISearchBarDelegate>
 
 @end
 
