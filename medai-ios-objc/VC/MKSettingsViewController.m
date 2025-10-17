@@ -9,6 +9,7 @@
 #import "HistoryManager.h"
 #import "MKFeedbackViewController.h"
 #import "UserDefaultsHelper.h"
+#import "MKAboutViewController.h"
 
 static NSString * const kSelectedModelKey = @"selected_model";
 static NSString * const kSelectedLanguageKey = @"selected_language";
@@ -97,11 +98,16 @@ static NSString * const kSelectedLanguageKey = @"selected_language";
             [self presentModelSelector];
         }
     } else if (indexPath.section == 2) {
-        if (indexPath.row == 2) {
-            MKFeedbackViewController *vc = [[MKFeedbackViewController alloc] init];
-            [self.navigationController pushViewController:vc animated:YES];
+        
+        if (indexPath.row == 1) {
+            MKAboutViewController *aboutVC = [[MKAboutViewController alloc] init];
+            [self.navigationController pushViewController:aboutVC animated:YES];
         }
-        // About 可加 else if (indexPath.row == 1) 跳转 About 页面
+        if (indexPath.row == 2) {
+            MKFeedbackViewController *feedbackVC = [[MKFeedbackViewController alloc] init];
+            [self.navigationController pushViewController:feedbackVC animated:YES];
+        }
+    
     }
 }
 
