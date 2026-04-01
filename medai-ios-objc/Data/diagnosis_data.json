@@ -1,0 +1,49 @@
+{
+  "version": "1.0.0",
+  "red_flags": [
+    {
+      "name": "ChestPainEmergency",
+      "severity": "high",
+      "keywords": ["chest pain", "chest tightness", "压胸", "胸痛"],
+      "advice": "Possible emergency. Go to emergency department immediately."
+    },
+    {
+      "name": "BreathingDistress",
+      "severity": "high",
+      "keywords": ["shortness of breath", "can't breathe", "呼吸困难"],
+      "advice": "Breathing distress detected. Seek emergency care now."
+    },
+    {
+      "name": "HighFeverPersistent",
+      "severity": "medium",
+      "keywords": ["high fever", "39", "fever 3 days", "高烧"],
+      "advice": "Persistent fever may need clinical evaluation soon."
+    }
+  ],
+  "symptoms": {
+    "fever": {
+      "conditions": ["Viral Infection", "Influenza"],
+      "departments": ["General Medicine", "Infectious Disease"]
+    },
+    "headache": {
+      "conditions": ["Migraine", "Tension Headache"],
+      "departments": ["Neurology"]
+    },
+    "cough": {
+      "conditions": ["Upper Respiratory Infection", "Bronchitis"],
+      "departments": ["Respiratory Medicine"]
+    },
+    "nausea": {
+      "conditions": ["Gastroenteritis", "Food Intolerance"],
+      "departments": ["Gastroenterology"]
+    },
+    "rash": {
+      "conditions": ["Allergic Dermatitis", "Viral Rash"],
+      "departments": ["Dermatology"]
+    },
+    "dizziness": {
+      "conditions": ["Dehydration", "Vestibular Dysfunction"],
+      "departments": ["Neurology", "General Medicine"]
+    }
+  }
+}

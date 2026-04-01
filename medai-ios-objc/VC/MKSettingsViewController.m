@@ -10,9 +10,7 @@
 #import "MKFeedbackViewController.h"
 #import "UserDefaultsHelper.h"
 #import "MKAboutViewController.h"
-
-static NSString * const kSelectedModelKey = @"selected_model";
-static NSString * const kSelectedLanguageKey = @"selected_language";
+#import "Constants.h"
 
 @interface MKSettingsViewController ()
 
@@ -31,7 +29,7 @@ static NSString * const kSelectedLanguageKey = @"selected_language";
     
     self.settings = @[
         @[@"Clear History"],
-        @[@"Language", @"AI Model"],
+        @[@"Language", @"AI Model", @"Risk Sensitivity", @"Rule Engine"],
         @[@"App Version", @"About", @"Feedback"]
     ];
 }
@@ -68,6 +66,12 @@ static NSString * const kSelectedLanguageKey = @"selected_language";
         } else if (indexPath.row == 1) {
             NSString *selectedModel = [UserDefaultsHelper stringForKey:kSelectedModelKey defaultValue:@"Simple"];
             cell.detailTextLabel.text = selectedModel;
+        } else if (indexPath.row == 2) {
+            NSString *sensitivity = [UserDefaultsHelper stringForKey:kRiskSensitivityKey defaultValue:@"normal"];
+            cell.detailTextLabel.text = [sensitivity isEqualToString:@"high"] ? @"High" : @"Normal";
+        } else if (indexPath.row == 3) {
+            BOOL enabled = [UserDefaultsHelper boolForKey:kRuleEngineEnabledKey defaultValue:YES];
+            cell.detailTextLabel.text = enabled ? @"On" : @"Off";
         }
     }
 
@@ -96,6 +100,12 @@ static NSString * const kSelectedLanguageKey = @"selected_language";
             [self presentLanguageSelector];
         } else if (indexPath.row == 1) {
             [self presentModelSelector];
+        } else if (indexPath.row == 2) {
+            [self presentSensitivitySelector];
+        } else if (indexPath.row == 3) {
+            BOOL enabled = [UserDefaultsHelper boolForKey:kRuleEngineEnabledKey defaultValue:YES];
+            [UserDefaultsHelper setBool:!enabled forKey:kRuleEngineEnabledKey];
+            [self.tableView reloadData];
         }
     } else if (indexPath.section == 2) {
         
@@ -173,6 +183,26 @@ static NSString * const kSelectedLanguageKey = @"selected_language";
     alert.popoverPresentationController.sourceView = self.view;
     alert.popoverPresentationController.sourceRect = self.view.bounds;
     
+    [self presentViewController:alert animated:YES completion:nil];
+}
+
+- (void)presentSensitivitySelector {
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Risk Sensitivity"
+                                                                   message:nil
+                                                            preferredStyle:UIAlertControllerStyleActionSheet];
+    NSArray *levels = @[@"normal", @"high"];
+    for (NSString *level in levels) {
+        UIAlertAction *action = [UIAlertAction actionWithTitle:[level capitalizedString]
+                                                         style:UIAlertActionStyleDefault
+                                                       handler:^(UIAlertAction * _Nonnull action) {
+            [UserDefaultsHelper setString:level forKey:kRiskSensitivityKey];
+            [self.tableView reloadData];
+        }];
+        [alert addAction:action];
+    }
+    [alert addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
+    alert.popoverPresentationController.sourceView = self.view;
+    alert.popoverPresentationController.sourceRect = self.view.bounds;
     [self presentViewController:alert animated:YES completion:nil];
 }
 

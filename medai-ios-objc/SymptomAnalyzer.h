@@ -9,7 +9,7 @@
 
 @interface SymptomAnalyzer : NSObject
 
-// 从字符串中分析症状 返回结果字典（conditions departments）
 + (NSDictionary *)analyzeSymptomsFromText:(NSString *)text;
++ (NSDictionary *)analyzeSymptomsFromText:(NSString *)text followUpAnswer:(nullable NSString *)followUpAnswer;
 
 @end

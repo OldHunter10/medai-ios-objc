@@ -6,6 +6,9 @@
 //
 
 #import <XCTest/XCTest.h>
+#import "HistoryManager.h"
+#import "TriageRuleEngine.h"
+#import "Constants.h"
 
 @interface medai_ios_objcTests : XCTestCase
 
@@ -14,23 +17,41 @@
 @implementation medai_ios_objcTests
 
 - (void)setUp {
-    // Put setup code here. This method is called before the invocation of each test method in the class.
+    [super setUp];
+    [HistoryManager clearHistory];
+    [[NSUserDefaults standardUserDefaults] removeObjectForKey:kRiskSensitivityKey];
 }
 
 - (void)tearDown {
-    // Put teardown code here. This method is called after the invocation of each test method in the class.
+    [HistoryManager clearHistory];
+    [[NSUserDefaults standardUserDefaults] removeObjectForKey:kRiskSensitivityKey];
+    [super tearDown];
 }
 
-- (void)testExample {
-    // This is an example of a functional test case.
-    // Use XCTAssert and related functions to verify your tests produce the correct results.
+- (void)testHistoryManagerStoresDictionaryRecord {
+    [HistoryManager saveRecordWithText:@"fever headache" resultSummary:@"Viral Infection" riskLevel:@"Clinic Soon"];
+    NSArray<NSDictionary *> *history = [HistoryManager loadHistory];
+    XCTAssertEqual(history.count, 1);
+    NSDictionary *entry = history.firstObject;
+    XCTAssertEqualObjects(entry[@"text"], @"fever headache");
+    XCTAssertEqualObjects(entry[@"summary"], @"Viral Infection");
+    XCTAssertEqualObjects(entry[@"riskLevel"], @"Clinic Soon");
 }
 
-- (void)testPerformanceExample {
-    // This is an example of a performance test case.
-    [self measureBlock:^{
-        // Put the code you want to measure the time of here.
-    }];
+- (void)testTriageRuleEngineReturnsEmergency {
+    NSDictionary *store = @{
+        @"red_flags": @[
+            @{
+                @"name": @"ChestPainEmergency",
+                @"severity": @"high",
+                @"keywords": @[@"chest pain"],
+                @"advice": @"Go to emergency now."
+            }
+        ]
+    };
+    NSDictionary *result = [TriageRuleEngine evaluateText:@"Severe chest pain today" dataStore:store sensitivity:@"normal"];
+    XCTAssertEqualObjects(result[@"risk_level"], @"emergency");
+    XCTAssertEqualObjects(result[@"next_step"], @"Go to emergency now.");
 }
 
 @end

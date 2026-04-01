@@ -11,11 +11,11 @@
 #define kSelectedLanguageKey @"selected_language"
 #define kSelectedModelKey @"selected_model"
 #define kHasLaunchedBeforeKey @"has_launched_before"
+#define kRiskSensitivityKey @"risk_sensitivity"
+#define kRuleEngineEnabledKey @"rule_engine_enabled"
 
 #define HISTORY_KEY @"user_query_history"
 #define MAX_HISTORY_COUNT 20
-
-#define kSelectedModelKey @"selected_model"
 
 #define DEBUG_LOG_ENABLED YES
 

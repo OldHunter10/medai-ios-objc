@@ -9,6 +9,8 @@
 #import "SymptomAnalyzer.h"
 #import "HistoryManager.h"
 #import "MKHistoryViewController.h"
+#import "MKSettingsViewController.h"
+#import "EncounterSession.h"
 
 @interface MKHomeViewController () <UITextFieldDelegate>
 
@@ -17,6 +19,7 @@
 @property (nonatomic, strong) UITextView *resultTextView;
 @property (nonatomic, strong) UIActivityIndicatorView *loadingView; // for loading spinner
 @property (nonatomic, strong) UIButton *cpResultButton;
+@property (nonatomic, strong) EncounterSession *session;
 
 @end
 
@@ -107,8 +110,6 @@
     [self.view addSubview:self.loadingView];
     
     [NSLayoutConstraint activateConstraints:@[
-        [self.resultTextView.bottomAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.bottomAnchor constant:-20],
-        
         [self.loadingView.centerXAnchor constraintEqualToAnchor:self.view.centerXAnchor],
         [self.loadingView.topAnchor constraintEqualToAnchor:self.analyzeButton.bottomAnchor constant:8]
     ]];
@@ -125,6 +126,7 @@
     ]];
     
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"History" style:UIBarButtonItemStylePlain target:self action:@selector(showHistory)];
+    self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Settings" style:UIBarButtonItemStylePlain target:self action:@selector(showSettings)];
 
 }
 
@@ -179,6 +181,11 @@
     [self.navigationController pushViewController:historyVC animated:YES];
 }
 
+- (void)showSettings {
+    MKSettingsViewController *settingsVC = [[MKSettingsViewController alloc] init];
+    [self.navigationController pushViewController:settingsVC animated:YES];
+}
+
 - (void)handleAnalyzeButtonTapped {
     [self.resultTextView setContentOffset:CGPointZero animated:NO];
     
@@ -198,16 +205,24 @@
     [self.analyzeButton setTitle:@"Analysing…" forState:UIControlStateNormal]; // <-- 新增
     [self.loadingView startAnimating];
 
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        NSDictionary *result = [SymptomAnalyzer analyzeSymptomsFromText:inputText];
+    self.session = [[EncounterSession alloc] initWithSymptoms:inputText];
+
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.4 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        NSDictionary *result = [SymptomAnalyzer analyzeSymptomsFromText:inputText followUpAnswer:nil];
         [self.loadingView stopAnimating];
         [self.analyzeButton setTitle:@"Analyse" forState:UIControlStateNormal]; // <-- 恢复原样
-        [self displayResult:result];
+        if ([result[@"needs_follow_up"] boolValue]) {
+            self.session.state = EncounterSessionStateAwaitingFollowUp;
+            [self presentFollowUpForInput:inputText question:result[@"follow_up_question"]];
+        } else {
+            self.session.state = EncounterSessionStateCompleted;
+            [self displayResult:result];
+            [self saveHistoryForInput:inputText result:result];
+        }
     });
     
-    [HistoryManager saveQuery:inputText];
     self.symptomInputField.text = @"";
-    [self.cpResultButton setEnabled:YES];
+    [self.cpResultButton setEnabled:NO];
     [self.symptomInputField resignFirstResponder];
 }
 
@@ -221,6 +236,13 @@
     }
 
     NSMutableString *output = [NSMutableString string];
+    NSString *riskLevel = [result[@"risk_level"] isKindOfClass:[NSString class]] ? result[@"risk_level"] : @"home_care";
+    NSString *nextStep = [result[@"next_step"] isKindOfClass:[NSString class]] ? result[@"next_step"] : @"";
+    NSArray *matchedRules = [result[@"matched_rules"] isKindOfClass:[NSArray class]] ? result[@"matched_rules"] : @[];
+    [output appendFormat:@"Risk Level: %@\n", [self displayRiskLevel:riskLevel]];
+    if (nextStep.length > 0) {
+        [output appendFormat:@"Next Step: %@\n\n", nextStep];
+    }
     if (conditions.count > 0) {
         [output appendString:@"Possible Conditions:\n"];
         for (NSString *condition in conditions) {
@@ -234,6 +256,12 @@
             [output appendFormat:@"- %@\n", dept];
         }
     }
+    if (matchedRules.count > 0) {
+        [output appendString:@"\nMatched Rules:\n"];
+        for (NSString *rule in matchedRules) {
+            [output appendFormat:@"- %@\n", rule];
+        }
+    }
 
     // 添加时间戳
     NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
@@ -242,7 +270,53 @@
     [output appendFormat:@"\n\nAnalyzed at: %@", timeString];
 
     self.resultTextView.text = output;
+    [self.cpResultButton setEnabled:YES];
     [self.resultTextView setContentOffset:CGPointZero animated:YES];
+}
+
+- (void)presentFollowUpForInput:(NSString *)inputText question:(NSString *)question {
+    NSString *followUpQuestion = question.length > 0 ? question : @"How long have symptoms lasted?";
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Follow-up"
+                                                                   message:followUpQuestion
+                                                            preferredStyle:UIAlertControllerStyleAlert];
+    [alert addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) {
+        textField.placeholder = @"<24h / 1-3d / >3d";
+    }];
+    __weak typeof(self) weakSelf = self;
+    UIAlertAction *submit = [UIAlertAction actionWithTitle:@"Submit" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        __strong typeof(weakSelf) self = weakSelf;
+        if (!self) return;
+        NSString *answer = [alert.textFields.firstObject.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+        self.session.followUpAnswer = answer ?: @"";
+        NSDictionary *finalResult = [SymptomAnalyzer analyzeSymptomsFromText:inputText followUpAnswer:self.session.followUpAnswer];
+        self.session.state = EncounterSessionStateCompleted;
+        [self displayResult:finalResult];
+        [self saveHistoryForInput:inputText result:finalResult];
+    }];
+    UIAlertAction *skip = [UIAlertAction actionWithTitle:@"Skip" style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+        __strong typeof(weakSelf) self = weakSelf;
+        if (!self) return;
+        NSDictionary *finalResult = [SymptomAnalyzer analyzeSymptomsFromText:inputText followUpAnswer:@"<24h"];
+        self.session.state = EncounterSessionStateCompleted;
+        [self displayResult:finalResult];
+        [self saveHistoryForInput:inputText result:finalResult];
+    }];
+    [alert addAction:skip];
+    [alert addAction:submit];
+    [self presentViewController:alert animated:YES completion:nil];
+}
+
+- (NSString *)displayRiskLevel:(NSString *)riskLevel {
+    if ([riskLevel isEqualToString:@"emergency"]) return @"Emergency";
+    if ([riskLevel isEqualToString:@"clinic_soon"]) return @"Clinic Soon";
+    return @"Home Care";
+}
+
+- (void)saveHistoryForInput:(NSString *)inputText result:(NSDictionary *)result {
+    NSString *riskLevel = [result[@"risk_level"] isKindOfClass:[NSString class]] ? [self displayRiskLevel:result[@"risk_level"]] : @"";
+    NSArray *conditions = [result[@"conditions"] isKindOfClass:[NSArray class]] ? result[@"conditions"] : @[];
+    NSString *summary = conditions.count > 0 ? [conditions componentsJoinedByString:@", "] : @"";
+    [HistoryManager saveRecordWithText:inputText resultSummary:summary riskLevel:riskLevel];
 }
 
 #pragma mark - External Methods

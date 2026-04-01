@@ -13,6 +13,7 @@
 @property (nonatomic, strong) NSArray<NSDictionary *> *historyItems;
 @property (nonatomic, strong) NSArray<NSDictionary *> *filteredItems;
 @property (nonatomic, strong) UISearchBar *searchBar;
+@property (nonatomic, strong) UILabel *countLabel;
 
 @end
 
@@ -24,11 +25,9 @@
     self.title = @"History";
     self.view.backgroundColor = [UIColor whiteColor];
     
-//    self.historyItems = [HistoryManager loadHistory];
-    self.historyItems = [[HistoryManager loadHistory] subarrayWithRange:NSMakeRange(0, MIN(100, [HistoryManager loadHistory].count))];
+    NSArray<NSDictionary *> *history = [HistoryManager loadHistory];
+    self.historyItems = [history subarrayWithRange:NSMakeRange(0, MIN(100, history.count))];
     self.filteredItems = self.historyItems;
-
-    [self.tableView registerClass:[UITableViewCell class] forCellReuseIdentifier:@"HistoryCell"];
     
     // 搜索框
     self.searchBar = [[UISearchBar alloc] init];
@@ -48,19 +47,19 @@
     UILongPressGestureRecognizer *longPress = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleLongPress:)];
     [self.tableView addGestureRecognizer:longPress];
     
-    UILabel *countLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, 20)];
-    countLabel.textAlignment = NSTextAlignmentCenter;
-    countLabel.font = [UIFont systemFontOfSize:12];
-    countLabel.textColor = [UIColor grayColor];
-    countLabel.tag = 999;
-
-    [self.view addSubview:countLabel];
+    self.countLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, 20)];
+    self.countLabel.textAlignment = NSTextAlignmentCenter;
+    self.countLabel.font = [UIFont systemFontOfSize:12];
+    self.countLabel.textColor = [UIColor grayColor];
+    self.tableView.tableFooterView = self.countLabel;
+    [self updateCountLabel];
 }
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     self.historyItems = [HistoryManager loadHistory];
     self.filteredItems = self.historyItems;
+    [self updateCountLabel];
     [self.tableView reloadData];
 }
 
@@ -86,6 +85,7 @@
         [HistoryManager deleteRecord:text];
         self.historyItems = [HistoryManager loadHistory];
         self.filteredItems = self.historyItems;
+        [self updateCountLabel];
         [self.tableView reloadData];
     }];
     
@@ -112,9 +112,7 @@
         self.filteredItems = [self.historyItems filteredArrayUsingPredicate:predicate];
     }
     
-    UILabel *label = [self.view viewWithTag:999];
-    label.text = [NSString stringWithFormat:@"%lu result%@", (unsigned long)self.filteredItems.count, self.filteredItems.count == 1 ? @"" : @"s"];
-    
+    [self updateCountLabel];
     [self.tableView reloadData];
 }
 
@@ -134,6 +132,7 @@
         [HistoryManager clearHistory];
         self.historyItems = @[];
         self.filteredItems = @[];
+        [self updateCountLabel];
         [self.tableView reloadData];
     }];
     
@@ -149,10 +148,17 @@
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"HistoryCell" forIndexPath:indexPath];
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"HistoryCell"];
+    if (!cell) {
+        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:@"HistoryCell"];
+    }
     
     NSDictionary *entry = self.filteredItems[indexPath.row];
-    cell.textLabel.text = [NSString stringWithFormat:@"%ld. %@", (long)(indexPath.row + 1), entry[@"text"]];    cell.detailTextLabel.text = entry[@"date"];
+    NSString *text = [entry[@"text"] isKindOfClass:[NSString class]] ? entry[@"text"] : @"";
+    NSString *date = [entry[@"date"] isKindOfClass:[NSString class]] ? entry[@"date"] : @"";
+    NSString *riskLevel = [entry[@"riskLevel"] isKindOfClass:[NSString class]] ? entry[@"riskLevel"] : @"";
+    cell.textLabel.text = [NSString stringWithFormat:@"%ld. %@", (long)(indexPath.row + 1), text];
+    cell.detailTextLabel.text = riskLevel.length > 0 ? [NSString stringWithFormat:@"%@ · %@", date, riskLevel] : date;
     
     cell.textLabel.font = [UIFont systemFontOfSize:16];
     cell.detailTextLabel.font = [UIFont systemFontOfSize:12];
@@ -178,6 +184,10 @@
             break;
         }
     }
+}
+
+- (void)updateCountLabel {
+    self.countLabel.text = [NSString stringWithFormat:@"%lu result%@", (unsigned long)self.filteredItems.count, self.filteredItems.count == 1 ? @"" : @"s"];
 }
 
 @end

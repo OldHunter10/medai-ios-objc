@@ -10,7 +10,8 @@
 @interface HistoryManager : NSObject
 
 + (void)saveQuery:(NSString *)query;
-+ (NSArray<NSString *> *)loadHistory;
++ (void)saveRecordWithText:(NSString *)text resultSummary:(NSString *)resultSummary riskLevel:(NSString *)riskLevel;
++ (NSArray<NSDictionary *> *)loadHistory;
 + (void)clearHistory;
 + (void)deleteRecord:(NSString *)recordText;
 @end
